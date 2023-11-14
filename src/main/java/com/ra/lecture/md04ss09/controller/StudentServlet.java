@@ -53,6 +53,10 @@ public class StudentServlet extends HttpServlet {
                     studentService.delete(studentId);
                     showStudentList(request,response);
                     break;
+                case "sort":
+                    request.setAttribute("studentList", studentService.getSortedStudentDTOList());
+                    request.getRequestDispatcher("views/student.jsp").forward(request,response);
+                    break;
             }
         }
 
@@ -64,43 +68,78 @@ public class StudentServlet extends HttpServlet {
 
         String action = request.getParameter("action");
         String studentName = request.getParameter("studentName");
-        int studentId = Integer.parseInt(request.getParameter("id"));
-        Date birthday;
-        try {
-            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
-            java.util.Date date = simpleDateFormat.parse(request.getParameter("birthday"));
-            birthday = new Date(date.getTime());
-        } catch (ParseException e) {
-            throw new RuntimeException(e);
-        }
-        String className = request.getParameter("className");
-//        TODO: check lại logic đoạn này
-        if (className == null) {
-            className = "Math";
-        }
+        int studentId;
         int classId = -1;
-        List<ClassroomDTO> classroomList = classroomService.getAll();
-        for (ClassroomDTO classroomDTO : classroomList) {
-            if (classroomDTO.getName().equals(className)) {
-                classId = classroomDTO.getId();
-            }
-        }
-        StudentDTO studentDTO = new StudentDTO();
-        studentDTO.setName(studentName);
-        studentDTO.setBirthday(birthday);
-        studentDTO.setClassId(classId);
+        Date birthday;
+        String className;
+        List<ClassroomDTO> classroomList;
+        StudentDTO studentDTO;
 
         if (action == null) {
             showStudentList(request, response);
         } else {
             switch (action) {
                 case "add":
+                    studentId = Integer.parseInt(request.getParameter("id"));
+                    try {
+                        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
+                        java.util.Date date = simpleDateFormat.parse(request.getParameter("birthday"));
+                        birthday = new Date(date.getTime());
+                    } catch (ParseException e) {
+                        throw new RuntimeException(e);
+                    }
+                     className = request.getParameter("className");
+//        TODO: check lại logic đoạn này
+                    if (className == null) {
+                        className = "Math";
+                    }
+                    classroomList = classroomService.getAll();
+                    for (ClassroomDTO classroomDTO : classroomList) {
+                        if (classroomDTO.getName().equals(className)) {
+                            classId = classroomDTO.getId();
+                        }
+                    }
+                    studentDTO = new StudentDTO();
+                    studentDTO.setName(studentName);
+                    studentDTO.setBirthday(birthday);
+                    studentDTO.setClassId(classId);
+
                     studentService.save(studentDTO);
                     showStudentList(request,response);
                     break;
                 case "update":
+                    studentId = Integer.parseInt(request.getParameter("id"));
+                    try {
+                        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
+                        java.util.Date date = simpleDateFormat.parse(request.getParameter("birthday"));
+                        birthday = new Date(date.getTime());
+                    } catch (ParseException e) {
+                        throw new RuntimeException(e);
+                    }
+                    className = request.getParameter("className");
+//        TODO: check lại logic đoạn này
+                    if (className == null) {
+                        className = "Math";
+                    }
+                    classroomList = classroomService.getAll();
+                    for (ClassroomDTO classroomDTO : classroomList) {
+                        if (classroomDTO.getName().equals(className)) {
+                            classId = classroomDTO.getId();
+                        }
+                    }
+                    studentDTO = new StudentDTO();
+                    studentDTO.setName(studentName);
+                    studentDTO.setBirthday(birthday);
+                    studentDTO.setClassId(classId);
+
                     studentService.update(studentDTO, studentId);
                     showStudentList(request,response);
+                    break;
+                case "search":
+                    String searchTerm = request.getParameter("searchTerm");
+                    List<StudentDTO> searchResult = studentService.searchByClass(searchTerm);
+                    request.setAttribute("studentList", searchResult);
+                    request.getRequestDispatcher("views/student.jsp").forward(request,response);
                     break;
             }
         }

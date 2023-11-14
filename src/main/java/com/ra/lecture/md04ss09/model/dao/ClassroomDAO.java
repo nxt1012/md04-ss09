@@ -41,6 +41,11 @@ public class ClassroomDAO implements IGenericDAO<ClassroomDTO, Integer> {
         try {
             String sql = "insert into class (name) values (?)";
             PreparedStatement preparedStatement = connection.prepareStatement(sql);
+            preparedStatement.setString(1, classroom.getName());
+            int check = preparedStatement.executeUpdate();
+            if (check > 0) {
+                return true;
+            }
         } catch (SQLException e) {
             throw new RuntimeException(e);
         } finally {
@@ -109,5 +114,41 @@ public class ClassroomDAO implements IGenericDAO<ClassroomDTO, Integer> {
             ConnectionDB.closeConnection(connection);
         }
         return false;
+    }
+
+    public static boolean addClassTransaction() {
+        Connection connection = ConnectionDB.openConnection();
+        try {
+            connection.setAutoCommit(false);
+            String sql1 = "insert into class (name) values (?)";
+            PreparedStatement preparedStatement1 = connection.prepareStatement(sql1);
+            preparedStatement1.setString(1, "Biology");
+            int check1 = preparedStatement1.executeUpdate();
+
+            String sql2 = "insert into class (name) value (?)";
+            PreparedStatement preparedStatement2 = connection.prepareStatement(sql2);
+            int check2 = preparedStatement2.executeUpdate();
+            preparedStatement2.setString(1, "Philosophy");
+
+            connection.commit();
+            if (check1 > 0 && check2 > 0) {
+                return true;
+            }
+        } catch (SQLException e) {
+            try {
+                connection.rollback();
+            } catch (SQLException ex) {
+                throw new RuntimeException(ex);
+            }
+            throw new RuntimeException(e);
+        } finally {
+            ConnectionDB.closeConnection(connection);
+        }
+        return false;
+
+    }
+
+    public static void main(String[] args) {
+        addClassTransaction();
     }
 }

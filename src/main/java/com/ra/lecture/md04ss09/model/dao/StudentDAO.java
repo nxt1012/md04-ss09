@@ -9,6 +9,8 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 public class StudentDAO implements IGenericDAO<StudentDTO, Integer> {
@@ -122,5 +124,40 @@ public class StudentDAO implements IGenericDAO<StudentDTO, Integer> {
             ConnectionDB.closeConnection(connection);
         }
         return false;
+    }
+
+    public List<StudentDTO> getSortedStudentDTOList() {
+        List<StudentDTO> sortedStudentDTOList = getAll();
+        Collections.sort(sortedStudentDTOList, new Comparator<StudentDTO>() {
+            @Override
+            public int compare(StudentDTO o1, StudentDTO o2) {
+                return o1.getName().compareTo(o2.getName());
+            }
+        });
+        System.out.println(sortedStudentDTOList);
+        return sortedStudentDTOList;
+    }
+
+
+    public List<StudentDTO> searchByClass(String searchTerm) {
+        List<StudentDTO> studentList = new ArrayList<>();
+        Connection connection = ConnectionDB.openConnection();
+        try {
+            CallableStatement callableStatement = connection.prepareCall("{call getByClass(?)}");
+            callableStatement.setString(1, searchTerm);
+            ResultSet resultSet = callableStatement.executeQuery();
+            while (resultSet.next()) {
+                StudentDTO student = new StudentDTO();
+                student.setId(resultSet.getInt("Student ID"));
+                student.setName(resultSet.getString("Name"));
+                student.setBirthday(resultSet.getDate("Birthday"));
+                student.setClassName(resultSet.getString("Class"));
+                studentList.add(student);
+            }
+        } catch (SQLException e) {
+        } finally {
+            ConnectionDB.closeConnection(connection);
+        }
+        return studentList;
     }
 }

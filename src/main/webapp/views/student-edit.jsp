@@ -17,7 +17,7 @@
     </style>
 </head>
 <body>
-<h1>Add new Student</h1>
+<h1>Edit Student</h1>
 <form action="<%=request.getContextPath()%>/student" method="post">
     <input type="hidden" id="studentId" name="id" value="${studentDTO.id}">
     <div class="mb-3">

@@ -31,4 +31,11 @@ public class StudentService implements IGenericService<StudentDTO, Integer> {
     public boolean delete(Integer studentId) {
         return studentDAO.delete(studentId);
     }
+    public List<StudentDTO> getSortedStudentDTOList() {
+        return studentDAO.getSortedStudentDTOList();
+    }
+
+    public List<StudentDTO> searchByClass(String searchTerm) {
+        return studentDAO.searchByClass(searchTerm);
+    }
 }
